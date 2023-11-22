@@ -64,7 +64,7 @@ glimpse(shootings_data) # Display every column
 __Source__ https://r4ds.had.co.nz/factors.html
 
 
-I do not these columns: INCIDENT_KEY, OCCUR_TIME, PRECINCT, JURISDICTION_CODE, LOCATION_DESC, LOC_CLASSFCTN_DESC, LOC_OF_OCCUR_DESC, X_COORD_CD, Y_COORD_CD, Latitude, Longitude, Lon_Lat, PERP_SEX, VIC_SEX.
+I do not these columns: INCIDENT_KEY, OCCUR_DATE, OCCUR_TIME, PRECINCT, JURISDICTION_CODE, LOCATION_DESC, LOC_CLASSFCTN_DESC, LOC_OF_OCCUR_DESC, X_COORD_CD, Y_COORD_CD, Latitude, Longitude, Lon_Lat, PERP_SEX, VIC_SEX.
 
 
 ```{r tidying_and_transforming, message=FALSE, warnings=FALSE}
@@ -73,6 +73,7 @@ I do not these columns: INCIDENT_KEY, OCCUR_TIME, PRECINCT, JURISDICTION_CODE, L
 shootings_data <- shootings_data %>% select(-c(
                       INCIDENT_KEY,
                       OCCUR_TIME,
+                      OCCUR_DATE,
                       PRECINCT, 
                       JURISDICTION_CODE, 
                       LOCATION_DESC, 
@@ -201,7 +202,7 @@ shootings_data %>%
 
 ```
 
-The majority of victims as well as perpetrators of shootings both fatal and non-fatal are Black. The majority of victims as well as perpetrators of shootings both fatal and non-fatal are between the age groups 18-24 and 25-44 at the time of writing. Brooklyn and the Bronx experience the most shooting incidences.
+The majority of victims as well as perpetrators of shootings both fatal and non-fatal are Black. The majority of victims as well as perpetrators of shootings both fatal and non-fatal are between the age groups 18-24 and 25-44 at the time of writing. Brooklyn and the Bronx experience the most shooting incidents.
 
 ### Analysis
 
