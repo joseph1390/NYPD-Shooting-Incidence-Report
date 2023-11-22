@@ -1,0 +1,251 @@
+---
+title: "NYPD_Shooting_Incidents_Report"
+author: "Daniel Mandel"
+date: "2023-11-21"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+### Purpose
+
+This assignment will show my ability to complete all steps in the data science process in a reproducible manner by producing a report on the NYPD Shooting Incident Data (Historic).
+
+### Question
+
+I want to determine if a demographic (age or race) as well as location are good indicators to determine whether a shooting incident was fatal or not. Will my models be able to predict this?
+
+### Description of Data
+
+List of every shooting incident that occurred in NYC going back to 2006 through the end of the previous calendar year.
+
+This is a breakdown of every shooting incident that occurred in NYC going back to 2006 through the end of the previous calendar year. This data is manually extracted every quarter and reviewed by the Office of Management Analysis and Planning before being posted on the NYPD website. Each record represents a shooting incident in NYC and includes information about the event, the location and time of occurrence. In addition, information related to suspect and victim demographics is also included. This data can be used by the public to explore the nature of shooting/criminal activity. Please refer to the attached data footnotes for additional information about this dataset.
+
+__Source__ https://catalog.data.gov/dataset/nypd-shooting-incident-data-historic
+
+## Step 1:
+
+### Import Libraries
+
+```{r import_libraries, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(ggplot2)
+```
+
+## Step 2:
+
+### Import the Dataset
+
+```{r import_dataset, message=FALSE, warnings=FALSE}
+
+url_in <- "https://data.cityofnewyork.us/api/views/833y-fsy8/rows.csv"
+
+shootings_data <- read_csv(url_in)
+
+glimpse(shootings_data) # Display every column
+```
+
+## Step 3:
+
+### Tidying and Transforming Dataset
+
+### Remove any unnecessary columns from the dataset (anything not related to demographics, borough or if the shooting was fatal).
+
+### Create factors as they are used to work with categorical variables and regression later.
+
+### Remove NA values from the records.
+
+__Source__ https://r4ds.had.co.nz/factors.html
+
+
+I do not these columns: INCIDENT_KEY, OCCUR_TIME, PRECINCT, JURISDICTION_CODE, LOCATION_DESC, LOC_CLASSFCTN_DESC, LOC_OF_OCCUR_DESC, X_COORD_CD, Y_COORD_CD, Latitude, Longitude, Lon_Lat, PERP_SEX, VIC_SEX.
+
+
+```{r tidying_and_transforming, message=FALSE, warnings=FALSE}
+
+# Drop the columns
+shootings_data <- shootings_data %>% select(-c(
+                      INCIDENT_KEY,
+                      OCCUR_TIME,
+                      PRECINCT, 
+                      JURISDICTION_CODE, 
+                      LOCATION_DESC, 
+                      LOC_CLASSFCTN_DESC, 
+                      LOC_OF_OCCUR_DESC, 
+                      X_COORD_CD, 
+                      Y_COORD_CD, 
+                      Latitude, 
+                      Longitude, 
+                      Lon_Lat,
+                      PERP_SEX,
+                      VIC_SEX
+                    ))
+
+
+# Treat categorical variables as factors to be used in regression analysis
+
+shootings_data$BORO <- as.factor(shootings_data$BORO)
+shootings_data$PERP_AGE_GROUP <- as.factor(shootings_data$PERP_AGE_GROUP)
+shootings_data$PERP_RACE <- as.factor(shootings_data$PERP_RACE)
+shootings_data$VIC_AGE_GROUP <- as.factor(shootings_data$VIC_AGE_GROUP)
+shootings_data$VIC_RACE <- as.factor(shootings_data$VIC_RACE)
+shootings_data$STATISTICAL_MURDER_FLAG <- as.factor(shootings_data$STATISTICAL_MURDER_FLAG)
+
+# Lets remove any data that is incomplete (has NA) as that will not be useful for our analysis
+shootings_data <- shootings_data %>% drop_na()
+
+# Display the summary
+summary(shootings_data)
+
+```
+
+## Step 4:
+
+### Visualizing, Analyzing, and Modeling Data
+
+### Create tables to display the breakdown of shootings and fatal shootings by race and age.
+
+``` {r visualizing_analyzing_modeling_tables, message=FALSE, warnings=FALSE}
+
+# Breakdown the victims by race
+
+table(shootings_data$VIC_RACE,
+      shootings_data$STATISTICAL_MURDER_FLAG
+)
+
+# Breakdown the perpetrators by race
+
+table(shootings_data$PERP_RACE,
+      shootings_data$STATISTICAL_MURDER_FLAG
+)
+
+# Breakdown the victims by age group
+
+table(shootings_data$VIC_AGE_GROUP,
+      shootings_data$STATISTICAL_MURDER_FLAG
+)
+
+# Breakdown the perpetrators by age group
+
+table(shootings_data$PERP_AGE_GROUP,
+      shootings_data$STATISTICAL_MURDER_FLAG
+)
+
+```
+
+### Create charts to compare as well
+
+``` {r visualizing_charts, message=FALSE, warnings=FALSE}
+
+# Create charts to show the distribution of fatal shootings by age, race and borough.
+
+shootings_data %>%
+  filter(STATISTICAL_MURDER_FLAG == TRUE) %>%
+  ggplot(aes(x = BORO)) +
+  geom_bar(fill = "blue")+
+  theme_bw()+
+  labs(x = "Borough",
+       y = "Fatal Shootings",
+       title = "Fatal Shootings by Borough")
+
+shootings_data %>%
+  filter(STATISTICAL_MURDER_FLAG == FALSE) %>%
+  ggplot(aes(x = BORO)) +
+  geom_bar(fill = "blue")+
+  theme_bw()+
+  labs(x = "Borough",
+       y = "Non-Fatal Shootings",
+       title = "Non-Fatal Shootings by Borough")
+
+shootings_data %>%
+  filter(STATISTICAL_MURDER_FLAG == TRUE) %>%
+  ggplot(aes(x = VIC_AGE_GROUP)) +
+  geom_bar(fill = "blue")+
+  theme_bw()+
+  labs(x = "Victim Age Group",
+       y = "Fatal Shootings",
+       title = "Fatal Shootings by Victim Age Group")
+
+shootings_data %>%
+  filter(STATISTICAL_MURDER_FLAG == FALSE) %>%
+  ggplot(aes(x = VIC_AGE_GROUP)) +
+  geom_bar(fill = "blue")+
+  theme_bw()+
+  labs(x = "Victim Age Group",
+       y = "Non-Fatal Shootings",
+       title = "Non-Fatal Shootings by Victim Age Group")
+
+shootings_data %>%
+  filter(STATISTICAL_MURDER_FLAG == TRUE) %>%
+  ggplot(aes(x = VIC_RACE)) +
+  geom_bar(fill = "blue")+
+  theme_bw()+
+  labs(x = "Victim Race",
+       y = "Fatal Shootings",
+       title = "Fatal Shootings by Victim Race")
+
+shootings_data %>%
+  filter(STATISTICAL_MURDER_FLAG == FALSE) %>%
+  ggplot(aes(x = VIC_RACE)) +
+  geom_bar(fill = "blue")+
+  theme_bw()+
+  labs(x = "Victim Race",
+       y = "Non-Fatal Shootings",
+       title = "Non-Fatal Shootings by Victim Race")
+
+```
+
+The majority of victims as well as perpetrators of shootings both fatal and non-fatal are Black. The majority of victims as well as perpetrators of shootings both fatal and non-fatal are between the age groups 18-24 and 25-44 at the time of writing. Brooklyn and the Bronx experience the most shooting incidences.
+
+### Analysis
+
+In order to analyze the data further, I am going to use regression analysis as this is the best use case because we have categorical data. I used this __Source__: https://www.geeksforgeeks.org/regression-with-categorical-variables-in-r-programming/ as a reference.
+
+I want to determine what demographic / location data is a good predictor on the outcome of a shooting incident. To answer my question from above. I selected as my independent variable as STATISTICAL_MURDER_FLAG, and I chose my dependent variables as VIC_AGE_GROUP, VIC_RACE, BORO.
+
+``` {r analysis, message=FALSE, warnings=FALSE}
+
+# Regression is a multi-step process for estimating the relationships between a dependent variable and one or more independent variables also known as predictors or covariates.
+
+glm_model <- glm(STATISTICAL_MURDER_FLAG ~ VIC_AGE_GROUP + VIC_RACE + BORO, data = shootings_data, family = 'binomial')
+
+summary(glm_model)
+
+```
+
+Given that the p-value for the predictor variable for VIC_AGE_GROUP18-24, VIC_AGE_GROUP25-44, VIC_AGE_GROUP45-64, VIC_AGE_GROUP65+, BOROBROOKLYN, BOROMANHATTAN, and BOROQUEENS is less than 0.05, means that they have a statistically significant relationship with the response variable in the model. __Source__: https://www.statology.org/interpret-prz-logistic-regression-output-r/
+
+After reviewing the evidence in my regression analysis and table data. It appears that the age and location are determining factors in the outcome of a shooting incident. There is no statistical evidence that race has is a determining factor in the outcome of a shooting incident.
+
+### Bias
+
+I tried to limit my own personal bias by staying true to the data and not jumping to conclusions. I let the data speak for itself when it comes to the statistical significance of a determining factor. I really had no dog in the fight it was fun to try and figure out which factors mattered the most.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
