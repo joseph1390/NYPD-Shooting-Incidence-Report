@@ -44,11 +44,14 @@ library(ggplot2)
 
 ```{r import_dataset, message=FALSE, warnings=FALSE}
 
+# Declare url
 url_in <- "https://data.cityofnewyork.us/api/views/833y-fsy8/rows.csv"
 
+# Read data from url
 shootings_data <- read_csv(url_in)
 
-glimpse(shootings_data) # Display every column
+# Display every column
+glimpse(shootings_data)
 ```
 
 ## Step 3:
@@ -90,7 +93,6 @@ shootings_data <- shootings_data %>% select(-c(
 
 
 # Treat categorical variables as factors to be used in regression analysis
-
 shootings_data$BORO <- as.factor(shootings_data$BORO)
 shootings_data$PERP_AGE_GROUP <- as.factor(shootings_data$PERP_AGE_GROUP)
 shootings_data$PERP_RACE <- as.factor(shootings_data$PERP_RACE)
@@ -115,25 +117,21 @@ summary(shootings_data)
 ``` {r visualizing_analyzing_modeling_tables, message=FALSE, warnings=FALSE}
 
 # Breakdown the victims by race
-
 table(shootings_data$VIC_RACE,
       shootings_data$STATISTICAL_MURDER_FLAG
 )
 
 # Breakdown the perpetrators by race
-
 table(shootings_data$PERP_RACE,
       shootings_data$STATISTICAL_MURDER_FLAG
 )
 
 # Breakdown the victims by age group
-
 table(shootings_data$VIC_AGE_GROUP,
       shootings_data$STATISTICAL_MURDER_FLAG
 )
 
 # Breakdown the perpetrators by age group
-
 table(shootings_data$PERP_AGE_GROUP,
       shootings_data$STATISTICAL_MURDER_FLAG
 )
@@ -145,7 +143,6 @@ table(shootings_data$PERP_AGE_GROUP,
 ``` {r visualizing_charts, message=FALSE, warnings=FALSE}
 
 # Create charts to show the distribution of fatal shootings by age, race and borough.
-
 shootings_data %>%
   filter(STATISTICAL_MURDER_FLAG == TRUE) %>%
   ggplot(aes(x = BORO)) +
