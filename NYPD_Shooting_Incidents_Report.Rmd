@@ -21,7 +21,7 @@ This assignment will show my ability to complete all steps in the data science p
 
 I want to determine if a demographic (age or race) as well as location are good indicators to determine whether a shooting incident was fatal or not. Will my models be able to predict this?
 
-### Description of Data
+### Data
 
 List of every shooting incident that occurred in NYC going back to 2006 through the end of the previous calendar year.
 
